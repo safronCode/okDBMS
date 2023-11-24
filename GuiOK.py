@@ -25,35 +25,35 @@ class OKDataViewer:
 
         self.create_gui()
     def load_groups(self):
-        self.conn = sqlite3.connect('okDBSM1.db')
+        self.conn = sqlite3.connect('okDBSM.db')
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM groups')
         self.data_groups = cursor.fetchall()
         self.conn.close()
 
     def load_users(self):
-        self.conn = sqlite3.connect('okDBSM1.db')
+        self.conn = sqlite3.connect('okDBSM.db')
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM users')
         self.data_users = cursor.fetchall()
         self.conn.close()
 
     def load_posts(self):
-        self.conn = sqlite3.connect('okDBSM1.db')
+        self.conn = sqlite3.connect('okDBSM.db')
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM posts')
         self.data_posts = cursor.fetchall()
         self.conn.close()
 
     def load_comments(self):
-        self.conn = sqlite3.connect('okDBSM1.db')
+        self.conn = sqlite3.connect('okDBSM.db')
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM comments')
         self.data_comments = cursor.fetchall()
         self.conn.close()
 
     def load_media(self):
-        self.conn = sqlite3.connect('okDBSM1.db')
+        self.conn = sqlite3.connect('okDBSM.db')
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM media')
         self.data_media = cursor.fetchall()
@@ -61,7 +61,7 @@ class OKDataViewer:
 
     def update_data(self):
         print("Запрос ",self.entry.get()," выполнен")
-        self.conn = sqlite3.connect('okDBSM1.db')
+        self.conn = sqlite3.connect('okDBSM.db')
         cursor = self.conn.cursor()
         try:
             cursor.execute(self.entry.get())
@@ -137,7 +137,7 @@ class OKDataViewer:
         btn = tk.Button(text='Execute!', command=self.update_data, width=115, height=2, bg="Grey", fg="White")
         btn.place(x=500, y=40)
 
-        groupsLabel = tk.Label(text = "Снизу таблица gruops")
+        groupsLabel = tk.Label(text = "Снизу таблица groups")
 
 
         postsLabel = tk.Label(text="Снизу таблица posts")
@@ -152,17 +152,17 @@ class OKDataViewer:
         usersLabel = tk.Label(text="Снизу таблица users")
 
 
-        instructionLabel = tk.Label(text="Введите SQL запрос и нажмите на EXECUTE\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t")
+        instructionLabel = tk.Label(text="Введите SQL запрос и нажмите на EXECUTE  \t\t\t\t\t\t\t\t\t\t\t\t")
         instructionLabel.pack()
         instructionLabel.place(x=500, y=0)
 
         if self.show_data:
             self.groupsTree = ttk.Treeview(self.root, columns=("id", "link", "name"), show="headings")
-            self.groupsTree.heading("id", text="id",command=lambda: self.sort_data(0))
+            self.groupsTree.heading("id", text="id",command=lambda: self.sort_groups(0))
             self.groupsTree.column("id", width=50)
-            self.groupsTree.heading("link", text="link", command=lambda: self.sort_data(1))
+            self.groupsTree.heading("link", text="link", command=lambda: self.sort_groups(1))
             self.groupsTree.column("link", width=175)
-            self.groupsTree.heading("name", text="name", command=lambda: self.sort_data(2))
+            self.groupsTree.heading("name", text="name", command=lambda: self.sort_groups(2))
             self.groupsTree.column("name", width=185)
             self.groupsTree.place(x=0,y=90)
             groupsLabel.place(x=0,y=70)
