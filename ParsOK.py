@@ -11,7 +11,7 @@ import sqlite3
 
 
 #Создаём СУБД
-conn = sqlite3.connect("okDBSM1.db")
+conn = sqlite3.connect("okDBSM.db")
 cur = conn.cursor()
 
 cur.execute("""
@@ -152,15 +152,18 @@ def date_format(date_):
         return date(year, month, day)
 
 if __name__ == '__main__':
+    post = int(input("Введите количество собранных постов с группы: "))
+
+
     #Через selenium определяем на каком сайте будем работать
     browser = wd.Chrome()
     browser.maximize_window()
     browser.get("https://ok.ru/dk?st.cmd=anonymMain&st.layer.cmd=PopLayerClose")
     time.sleep(1)
 
-    #Через selenium авторизовываемся
-    browser.find_element(By.NAME, "st.email").send_keys("+77788519847")
-    browser.find_element(By.NAME,"st.password").send_keys("PUFKzbvsXYglcmx7891979")
+    #Через selenium авторизовываемся в аккаунт OK
+    browser.find_element(By.NAME, "st.email").send_keys("login")
+    browser.find_element(By.NAME,"st.password").send_keys("password")
     browser.find_element(By.NAME, "st.password").send_keys(Keys.ENTER)
     time.sleep(1)
 
@@ -168,7 +171,7 @@ if __name__ == '__main__':
     id_comment = 1
     id_media = 1
     id_user = 1
-
+    
     allGroupsLink = ["","https://ok.ru/infomoscow24","https://ok.ru/vesti","https://ok.ru/spbsobakaru","https://ok.ru/buzuluksam","https://ok.ru/love.avto","https://ok.ru/glavdoroga","https://ok.ru/esports","https://ok.ru/dotaru","https://ok.ru/scinet","https://ok.ru/tinkoffbank"]
     allGroupsName = ["","Москва 24","ВЕСТИ","Собака.ru","Бузулук. Всё самое интересное.","Автолюбители","Главная Дорога","Киберспорт ОК","Dota 2","IT — Наука и техника","Тинькофф"]
     startPostsURL= ["","https://ok.ru/infomoscow24/topic/156297871069322","https://ok.ru/vesti/topic/156795562550671","https://ok.ru/spbsobakaru/topic/155699664257279","https://ok.ru/buzuluksam/topic/156827734797264","https://ok.ru/love.avto/topic/154699179326452","https://ok.ru/glavdoroga/topic/156525869111440","https://ok.ru/esports/topic/156286028897196","https://ok.ru/dotaru/topic/155460464413456","https://ok.ru/scinet/topic/156335930712217","https://ok.ru/tinkoffbank/topic/156509070443793"]
@@ -178,8 +181,7 @@ if __name__ == '__main__':
         browser.get(startPostsURL[id_group])
         time.sleep(1)
         insert_groups(id_group, allGroupsLink[id_group], allGroupsName[id_group])
-        #print(allGroupsLink[id_group],"\t",allGroupsName[id_group],"\t",startPostsURL[id_group])
-        while cnt_post<=350:
+        while cnt_post<=post:
             page_post = BeautifulSoup(browser.page_source, 'lxml')
             link_post = browser.current_url
             date_post = postDate(link_post)
@@ -203,10 +205,28 @@ if __name__ == '__main__':
             insert_posts(id_post, link_post, date_post, text_post, cnt_comments, cnt_likes, id_group)
 
             for item in comments:
-                user_name = item.find("a",class_="comments_author-name").find("span").text.strip()
-                link_user = item.find("a",class_="comments_author-name").get("href")
-                comment_text = item.find("span",class_="js-text-full").text.strip()
-                comment_date = date_format(item.find("span", class_="comments_current__footer__main__date").text.strip())
+                user_name_element = item.find("a", class_="comments_author-name")
+                if user_name_element:
+                    user_name = user_name_element.find("span").text.strip()
+                else:
+                    user_name = "Unknown User"
+                user_link_element = item.find("a", class_="comments_author-name")
+                if user_link_element:
+                    link_user = user_link_element.get("href")
+                else:
+                    link_user = "Unknown Link"
+
+                comment_text_element = item.find("span", class_="js-text-full")
+                if comment_text_element:
+                    comment_text = comment_text_element.text.strip()
+                else:
+                    comment_text = "No Text Found"
+
+                comment_date_element = item.find("span", class_="comments_current__footer__main__date")
+                if comment_date_element:
+                    comment_date = date_format(comment_date_element.text.strip())
+                else:
+                    comment_date = "Unknown Date"
 
                 insert_users(id_user, "https://ok.ru" + link_user, user_name)
                 insert_comments(id_comment, comment_date, comment_text, id_post, id_user)
@@ -260,11 +280,3 @@ if __name__ == '__main__':
                 break
             while browser.current_url == link_post:
                 time.sleep(0.1)
-
-
-
-
-
-
-
-
